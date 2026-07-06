@@ -51,6 +51,8 @@ RUN set -eux \
     sudo \
     coreutils \
     xpra \
+    xauth \
+    dbus \
     zenity \
     ttf-dejavu \
     font-wqy-zenhei \
