@@ -82,6 +82,8 @@ exec java \
   --add-exports=java.desktop/sun.java2d=ALL-UNNAMED \
   --add-exports=java.desktop/sun.awt.image=ALL-UNNAMED \
   --add-exports=java.desktop/java.awt.peer=ALL-UNNAMED \
+  --add-exports=java.desktop/sun.swing=ALL-UNNAMED \
+  --add-opens=java.desktop/sun.swing=ALL-UNNAMED \
   --add-exports=java.base/java.lang=ALL-UNNAMED \
   --add-exports=java.base/java.io=ALL-UNNAMED \
   --add-exports=java.base/java.util=ALL-UNNAMED \
