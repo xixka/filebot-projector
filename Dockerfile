@@ -55,6 +55,7 @@ RUN set -eux \
     dbus \
     zenity \
     ttf-dejavu \
+    adwaita-icon-theme \
     font-wqy-zenhei \
  ## ** java-jna-native only available in edge community
  && apk --no-cache add \
