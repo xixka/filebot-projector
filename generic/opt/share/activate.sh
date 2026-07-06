@@ -34,7 +34,7 @@ echo "
 fi
 
 
-if [ ! -d "$HOME" ] || df -T "$HOME" 2>/dev/null | awk 'NR==2{print $2}' | grep -q '^overlay'; then
+if [ ! -d "$HOME" ] || [ "$(stat --file-system --format '%T' "$HOME")" = 'overlayfs' ]; then
 echo "
 \033[38;5;196m
 	!!! YOU DID NOT BIND MOUNT $HOME TO A PERSISTENT HOST FOLDER !!!
