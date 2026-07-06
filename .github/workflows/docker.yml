@@ -34,7 +34,6 @@ jobs:
           platforms: linux/amd64,linux/arm64
           push: true
           tags: |
-            xixka/filebot-projector:latest
-            xixka/filebot-projector:${{ steps.vars.outputs.sha7 }}
+            xixka/filebot-zh:projector
           cache-from: type=gha
           cache-to: type=gha,mode=max
