@@ -15,27 +15,12 @@ RUN apk --no-cache add curl \
 ## Stage 2: build custom JRE via jlink
 FROM --platform=$BUILDPLATFORM eclipse-temurin:17-jdk-alpine AS jre
 RUN jlink \
-    --add-modules \
-      java.base,\
-      java.desktop,\
-      java.logging,\
-      java.management,\
-      java.naming,\
-      java.net.http,\
-      java.scripting,\
-      java.sql,\
-      java.transaction.xa,\
-      java.xml,\
-      java.instrument,\
-      jdk.crypto.cryptoki,\
-      jdk.crypto.ec,\
-      jdk.unsupported,\
-      jdk.attach,\
-      jdk.localedata \
+    --add-modules java.base,java.desktop,java.logging,java.management,java.naming,java.net.http,java.scripting,java.sql,java.transaction.xa,java.xml,java.instrument,jdk.crypto.cryptoki,jdk.crypto.ec,jdk.unsupported,jdk.attach,jdk.localedata,jdk.zipfs \
+    --bind-services \
     --strip-debug \
     --no-man-pages \
     --no-header-files \
-    --compress=2 \
+    --compress=1 \
     --output /opt/jre
 
 ## Stage 3: runtime with projector
