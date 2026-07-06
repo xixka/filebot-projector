@@ -53,11 +53,11 @@ RUN set -eux \
     zenity \
     ttf-dejavu \
     adwaita-icon-theme \
- ## ** java-jna-native and CJK font only available in edge community
+    font-wqy-zenhei \
+ ## ** java-jna-native only available in edge community
  && apk --no-cache add \
     --repository http://dl-cdn.alpinelinux.org/alpine/edge/community \
     java-jna-native \
-    font-wqy-microhei \
  ## ** remove unneeded icons to reduce image size
  && rm -rf /usr/share/icons/Adwaita/cursors \
  && find /usr/share/icons/Adwaita -type f -name '*.svg' -delete 2>/dev/null || true \
