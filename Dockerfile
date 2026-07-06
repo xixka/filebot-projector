@@ -29,23 +29,21 @@ ENV PGROUP="filebot"
 # install dependencies + projector
 RUN set -eux \
  && apk add --no-cache \
-      bash \
       sudo \
       trash-cli \
       unzip \
       curl \
-      findutils \
-      coreutils \
       openjdk17-jre \
  && apk add --no-cache \
       --repository http://dl-cdn.alpinelinux.org/alpine/edge/community \
       java-jna-native \
-      font-wqy-zenhei \
+      font-wqy-microhei \
  # install projector
  && curl -fsSL -o /tmp/projector-server.zip https://github.com/JetBrains/projector-server/releases/download/v1.8.1/projector-server-v1.8.1.zip \
  && unzip /tmp/projector-server.zip -d /opt \
  && mv /opt/projector-server-* /opt/projector-server \
- && rm -rf /opt/projector-server/lib/slf4j-* /opt/projector-server/bin /tmp/projector-server.zip
+ && rm -rf /opt/projector-server/lib/slf4j-* /opt/projector-server/bin /tmp/projector-server.zip \
+ && apk del --no-cache unzip curl
 
 # install filebot
 COPY --from=filebot /opt/filebot /opt/filebot
@@ -77,11 +75,12 @@ EOF
 
 # install custom launcher scripts
 COPY generic /
+RUN chmod +x /opt/bin/run-as-user /opt/bin/run /opt/share/activate.sh
 
 # inline projector launcher script
 COPY --chmod=0755 <<'EOF' /opt/filebot-projector/start
 #!/bin/sh
-filebot "$@" | egrep -v 'IdeState|isIdeAttached|ProjectorBatchTransformer|InjectorAgent|IDE'
+filebot "$@" | grep -E -v 'IdeState|isIdeAttached|ProjectorBatchTransformer|InjectorAgent|IDE'
 EOF
 
 EXPOSE 8887
