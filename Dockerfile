@@ -14,21 +14,22 @@ RUN set -eux \
  ## ** install runtime dependencies
  && apk add --no-cache --update \
     openjdk17-jre \
-    mediainfo chromaprint p7zip \
+    mediainfo chromaprint \
     xpra openbox xauth dbus-x11 \
-    zenity xdg-utils xdg-user-dirs desktop-file-utils \
+    xdg-utils xdg-user-dirs \
     ttf-dejavu font-wqy-zenhei \
-    sudo wget \
  ## ** install java-jna-native from edge community
  && apk add --no-cache --update \
     java-jna-native \
     --repository=http://dl-cdn.alpinelinux.org/alpine/edge/community \
- ## ** fetch and install filebot portable
+ ## ** fetch and install filebot portable (wget is build-time only)
+ && apk add --no-cache --update wget \
  && wget -O /tmp/filebot.tar.xz "$FILEBOT_URL" \
  && echo "$FILEBOT_SHA256 */tmp/filebot.tar.xz" | sha256sum -c - \
  && mkdir -p "$FILEBOT_HOME" \
  && tar --extract --file /tmp/filebot.tar.xz --directory "$FILEBOT_HOME" \
  && rm -v /tmp/filebot.tar.xz \
+ && apk del wget \
  ## ** delete incompatible native binaries
  && find /opt/filebot/lib -type f -not -name libjnidispatch.so -delete \
  ## ** link /opt/filebot/data -> /data to persist application data files to the persistent data volume
@@ -54,7 +55,7 @@ COPY --chmod=0755 xpra /
 
 ENV HOME="/data"
 ENV LANG="C.UTF-8"
-ENV FILEBOT_OPTS="-Dapplication.deployment=docker -Dnet.filebot.archive.extractor=ShellExecutables -Duser.home=$HOME"
+ENV FILEBOT_OPTS="-Dapplication.deployment=docker -Dnet.filebot.archive.extractor=SevenZipNativeBindings -Duser.home=$HOME"
 
 ENV PUID="1000"
 ENV PGID="1000"
