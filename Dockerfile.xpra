@@ -55,7 +55,7 @@ COPY --chmod=0755 xpra /
 
 ENV HOME="/data"
 ENV LANG="C.UTF-8"
-ENV FILEBOT_OPTS="-Dapplication.deployment=docker -Dnet.filebot.archive.extractor=SevenZipNativeBindings -Duser.home=$HOME"
+ENV FILEBOT_OPTS="-Dapplication.deployment=docker -Dnet.filebot.archive.extractor=SevenZipNativeBindings -Duser.home=$HOME -Xmx384m -XX:+UseSerialGC -XX:MaxMetaspaceSize=128m -XX:ReservedCodeCacheSize=64m -Xss512k"
 
 ENV PUID="1000"
 ENV PGID="1000"
