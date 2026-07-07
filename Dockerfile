@@ -1,4 +1,4 @@
-FROM eclipse-temurin:17-jre-alpine
+FROM alpine:3.20
 
 LABEL maintainer="Reinhard Pointner <rednoah@filebot.net>"
 
@@ -12,6 +12,7 @@ ENV FILEBOT_HOME="/opt/filebot"
 RUN set -eux \
  ## ** install runtime dependencies
  && apk add --no-cache --update \
+    openjdk17-jre \
     mediainfo chromaprint p7zip unrar \
     xpra openbox xauth dbus-x11 \
     zenity xdg-utils xdg-user-dirs desktop-file-utils \
