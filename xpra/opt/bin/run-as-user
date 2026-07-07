@@ -11,7 +11,7 @@ fi
 export HOME="$HOME/$PUSER"
 (
 	addgroup -g "$PGID" "$PGROUP" 2>/dev/null || true
-	adduser -u "$PUID" -G "$PGID" -D -h "$HOME" "$PUSER" 2>/dev/null || true
+	adduser -u "$PUID" -G "$PGROUP" -D -h "$HOME" "$PUSER" 2>/dev/null || true
 	mkdir -p "$HOME"
 	chown -R "$PUID:$PGID" "$HOME"
 ) > /dev/null 2>&1
