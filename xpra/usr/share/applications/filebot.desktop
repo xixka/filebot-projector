@@ -1,0 +1,11 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=FileBot
+GenericName=Media Renamer
+Comment=Organize and rename your movies, TV shows and music
+Exec=filebot
+Icon=filebot
+Terminal=false
+Categories=AudioVideo;Audio;Video;Utility;
+StartupNotify=false
