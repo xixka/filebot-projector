@@ -57,6 +57,8 @@ RUN set -eux \
     ttf-dejavu \
     adwaita-icon-theme \
     font-wqy-zenhei \
+    xdg-utils \
+    desktop-file-utils \
  ## ** java-jna-native only available in edge community
  && apk --no-cache add \
     --repository http://dl-cdn.alpinelinux.org/alpine/edge/community \
