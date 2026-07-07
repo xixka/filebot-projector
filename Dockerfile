@@ -37,7 +37,7 @@ RUN set -eux \
  ## ** silence xpra startup error messages
  && mkdir -m 777 -p /tmp/xdg/xpra \
  && rm -rvf /usr/share/xpra/www/default-settings.* \
- && chmod 777 /run/user \
+ && mkdir -m 777 -p /run/user \
  && mkdir -m 777 -p /run/xpra \
  && chmod 775 /run/xpra \
  && mkdir -m 777 -p /etc/xdg/menus \
