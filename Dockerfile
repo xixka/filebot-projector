@@ -59,6 +59,7 @@ RUN set -eux \
     font-wqy-zenhei \
     xdg-utils \
     desktop-file-utils \
+    openbox \
  ## ** java-jna-native only available in edge community
  && apk --no-cache add \
     --repository http://dl-cdn.alpinelinux.org/alpine/edge/community \
