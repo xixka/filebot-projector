@@ -16,7 +16,7 @@ RUN set -eux \
     openjdk17-jre \
     mediainfo \
     xpra openbox xauth dbus-x11 \
-    xdg-utils xdg-user-dirs \
+    zenity xdg-user-dirs \
     ttf-dejavu font-wqy-zenhei \
  ## ** install java-jna-native from edge community
  && apk add --no-cache --update \
