@@ -14,7 +14,6 @@ RUN set -eux \
  ## ** install runtime dependencies
  && apk add --no-cache --update \
     openjdk17-jre \
-    mediainfo \
     xpra openbox xauth dbus-x11 py3-xdg \
     zenity xdg-user-dirs \
     ttf-dejavu font-wqy-zenhei \
@@ -32,13 +31,14 @@ RUN set -eux \
  && apk del wget \
  ## ** delete incompatible native binaries
  && find /opt/filebot/lib -type f -not -name libjnidispatch.so -delete \
+ ## ** delete unused platform native dirs (FreeBSD / armv7 not supported on this image)
+ && rm -rf /opt/filebot/lib/FreeBSD-amd64 /opt/filebot/lib/Linux-armv7l \
  ## ** link /opt/filebot/data -> /data to persist application data files to the persistent data volume
  && ln -s /data /opt/filebot/data \
  ## ** create filebot command symlink
  && ln -s /opt/filebot/filebot.sh /usr/local/bin/filebot \
  ## ** silence xpra startup error messages
  && mkdir -m 777 -p /tmp/xdg/xpra \
- && rm -rvf /usr/share/xpra/www/default-settings.* \
  && mkdir -m 777 -p /run/user \
  && mkdir -m 777 -p /run/xpra \
  && chmod 775 /run/xpra \
