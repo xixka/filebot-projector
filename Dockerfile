@@ -13,7 +13,7 @@ RUN set -eux \
  ## ** install runtime dependencies
  && apk add --no-cache --update \
     openjdk17-jre \
-    mediainfo chromaprint p7zip unrar \
+    mediainfo chromaprint p7zip \
     xpra openbox xauth dbus-x11 \
     zenity xdg-utils xdg-user-dirs desktop-file-utils \
     ttf-dejavu font-wqy-zenhei \
