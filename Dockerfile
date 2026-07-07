@@ -1,4 +1,4 @@
-FROM openjdk:17-alpine
+FROM eclipse-temurin:17-jre-alpine
 
 LABEL maintainer="Reinhard Pointner <rednoah@filebot.net>"
 
