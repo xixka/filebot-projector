@@ -1,0 +1,13 @@
+#!/bin/sh -u
+
+
+# print license activation help for new users
+if [ ! -f "$HOME/license.txt" ]; then
+	/opt/share/activate.sh
+fi
+
+# set working directory
+cd "$HOME"
+
+# execute filebot with the given arguments
+exec "$@"

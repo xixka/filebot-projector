@@ -1,0 +1,20 @@
+#!/bin/sh -u
+
+
+# run as root (or explicitly specified docker --user)
+if [ 0 -eq "$PUID" ] || [ 0 -ne "$(id -u)" ]; then
+	exec "$@"
+fi
+
+
+# configure normal user
+export HOME="$HOME/$PUSER"
+(
+	addgroup -g "$PGID" "$PGROUP" 2>/dev/null || true
+	adduser -u "$PUID" -G "$PGID" -D -h "$HOME" "$PUSER" 2>/dev/null || true
+	mkdir -p "$HOME"
+	chown -R "$PUID:$PGID" "$HOME"
+) > /dev/null 2>&1
+
+# run as normal user
+sudo --user "#$PUID" --group "#$PGID" --non-interactive --preserve-env -- "$@"

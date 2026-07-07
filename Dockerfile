@@ -1,38 +1,58 @@
-# syntax=docker/dockerfile:1.4
-
-
-ARG FILEBOT_VERSION=5.2.3
-
-
-## ** download filebot portable and xpra www customizations
-FROM alpine:3.20 AS filebot
-ARG FILEBOT_VERSION
-RUN set -eux \
- && apk --no-cache add curl \
- && mkdir -p /tmp/filebot \
- && curl -fsSL "https://get.filebot.net/filebot/FileBot_${FILEBOT_VERSION}/FileBot_${FILEBOT_VERSION}-portable.tar.xz" \
-    | tar xJ -C /tmp/filebot \
- && mkdir -p /opt/filebot \
- && cp -a /tmp/filebot/jar /opt/filebot/ \
- ## ** fetch xpra www customizations from upstream repository
- && curl -fsSL https://github.com/filebot/filebot-docker/archive/refs/heads/master.tar.gz -o /tmp/repo.tar.gz \
- && mkdir -p /tmp/repo \
- && tar -xzf /tmp/repo.tar.gz -C /tmp/repo --strip-components=1 \
- && mkdir -p /opt/xpra-www \
- && cp -a /tmp/repo/xpra/usr/share/xpra/www/. /opt/xpra-www/ \
- && rm -rf /tmp/repo /tmp/repo.tar.gz /tmp/filebot
-
-
-## ** runtime
-FROM alpine:3.20
-ARG FILEBOT_VERSION
+FROM openjdk:17-alpine
 
 LABEL maintainer="Reinhard Pointner <rednoah@filebot.net>"
 
 
-ENV FILEBOT_VERSION="${FILEBOT_VERSION}"
+ENV FILEBOT_VERSION="5.2.3"
+ENV FILEBOT_URL="https://get.filebot.net/filebot/FileBot_$FILEBOT_VERSION/FileBot_$FILEBOT_VERSION-portable.tar.xz"
+ENV FILEBOT_SHA256="0dae8364f9d465707ff30031d055dcc7c6b24907d96823ced3d4e979f1519d0c"
+ENV FILEBOT_HOME="/opt/filebot"
+
+
+RUN set -eux \
+ ## ** install runtime dependencies
+ && apk add --no-cache --update \
+    mediainfo chromaprint p7zip unrar \
+    xpra openbox xauth dbus-x11 \
+    zenity xdg-utils xdg-user-dirs desktop-file-utils \
+    ttf-dejavu font-wqy-zenhei \
+    sudo wget \
+ ## ** install java-jna-native from edge community
+ && apk add --no-cache --update \
+    java-jna-native \
+    --repository=http://dl-cdn.alpinelinux.org/alpine/edge/community \
+ ## ** fetch and install filebot portable
+ && wget -O /tmp/filebot.tar.xz "$FILEBOT_URL" \
+ && echo "$FILEBOT_SHA256 */tmp/filebot.tar.xz" | sha256sum -c - \
+ && mkdir -p "$FILEBOT_HOME" \
+ && tar --extract --file /tmp/filebot.tar.xz --directory "$FILEBOT_HOME" \
+ && rm -v /tmp/filebot.tar.xz \
+ ## ** delete incompatible native binaries
+ && find /opt/filebot/lib -type f -not -name libjnidispatch.so -delete \
+ ## ** link /opt/filebot/data -> /data to persist application data files to the persistent data volume
+ && ln -s /data /opt/filebot/data \
+ ## ** create filebot command symlink
+ && ln -s /opt/filebot/filebot.sh /usr/local/bin/filebot \
+ ## ** silence xpra startup error messages
+ && mkdir -m 777 -p /tmp/xdg/xpra \
+ && rm -rvf /usr/share/xpra/www/default-settings.* \
+ && chmod 777 /run/user \
+ && mkdir -m 777 -p /run/xpra \
+ && chmod 775 /run/xpra \
+ && mkdir -m 777 -p /etc/xdg/menus \
+ && echo "<Menu/>" > /etc/xdg/menus/kde-debian-menu.menu \
+ && echo "<Menu/>" > /etc/xdg/menus/debian-menu.menu \
+ ## ** clean up
+ && rm -rf /var/cache/apk/*
+
+
+# install custom launcher scripts
+COPY xpra /
+
+
 ENV HOME="/data"
 ENV LANG="C.UTF-8"
+ENV FILEBOT_OPTS="-Dapplication.deployment=docker -Dnet.filebot.archive.extractor=ShellExecutables -Duser.home=$HOME"
 
 ENV PUID="1000"
 ENV PGID="1000"
@@ -42,63 +62,6 @@ ENV PGROUP="filebot"
 ENV XPRA_BIND="0.0.0.0"
 ENV XPRA_PORT="5454"
 ENV XPRA_AUTH="none"
-
-
-## ** install dependencies and xpra
-RUN set -eux \
- && apk --no-cache add \
-    openjdk17-jre \
-    sudo \
-    coreutils \
-    xpra \
-    xauth \
-    dbus-x11 \
-    zenity \
-    ttf-dejavu \
-    adwaita-icon-theme \
-    font-wqy-zenhei \
-    xdg-utils \
-    desktop-file-utils \
- ## ** java-jna-native only available in edge community
- && apk --no-cache add \
-    --repository http://dl-cdn.alpinelinux.org/alpine/edge/community \
-    java-jna-native \
- ## ** silence xpra startup error messages
- && mkdir -m 777 -p /tmp/xdg/xpra \
- && rm -f /usr/share/xpra/www/default-settings.* \
- && mkdir -p /run/user && chmod 777 /run/user \
- && mkdir -m 777 -p /run/xpra \
- && chmod 775 /run/xpra \
- && mkdir -m 777 -p /etc/xdg/menus \
- && echo "<Menu/>" > /etc/xdg/menus/kde-debian-menu.menu \
- && echo "<Menu/>" > /etc/xdg/menus/debian-menu.menu
-
-
-## ** copy filebot portable and xpra www from build stage
-COPY --from=filebot /opt/filebot /opt/filebot
-COPY --from=filebot /opt/xpra-www /usr/share/xpra/www
-
-
-## ** inline filebot launcher (replaces deb-installed /usr/bin/filebot)
-COPY --chmod=0755 <<'EOF' /usr/bin/filebot
-#!/bin/sh
-exec java \
-  --add-exports=java.desktop/sun.swing=ALL-UNNAMED \
-  --add-exports=java.desktop/sun.awt=ALL-UNNAMED \
-  --add-opens=java.desktop/sun.swing=ALL-UNNAMED \
-  --add-opens=java.desktop/sun.awt=ALL-UNNAMED \
-  -Dapplication.deployment=docker \
-  -Dapplication.update=SKIP \
-  -Duser.home="${HOME:-/data}" \
-  -Dnet.filebot.UserFiles.trash=XDG \
-  ${FILEBOT_OPTS:-} \
-  -jar /opt/filebot/jar/filebot.jar \
-  "$@"
-EOF
-
-
-## ** copy launcher scripts from build context
-COPY --chmod=0755 generic/opt/ /opt/
 
 
 EXPOSE $XPRA_PORT
