@@ -27,6 +27,7 @@ xpra start \
   --speaker=disabled \
   --microphone=disabled \
   --system-tray=no \
+  --mdns=no \
   --min-quality='80' \
   --video-scaling='0' \
   --html=on \
