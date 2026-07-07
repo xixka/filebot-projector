@@ -1,3 +1,4 @@
+# syntax=docker/dockerfile:1.4
 FROM alpine:3.20
 
 LABEL maintainer="Reinhard Pointner <rednoah@filebot.net>"
@@ -48,7 +49,7 @@ RUN set -eux \
 
 
 # install custom launcher scripts
-COPY xpra /
+COPY --chmod=0755 xpra /
 
 
 ENV HOME="/data"
