@@ -59,7 +59,6 @@ RUN set -eux \
     font-wqy-zenhei \
     xdg-utils \
     desktop-file-utils \
-    openbox \
  ## ** java-jna-native only available in edge community
  && apk --no-cache add \
     --repository http://dl-cdn.alpinelinux.org/alpine/edge/community \
@@ -89,6 +88,7 @@ exec java \
   --add-opens=java.desktop/sun.swing=ALL-UNNAMED \
   --add-opens=java.desktop/sun.awt=ALL-UNNAMED \
   -Dapplication.deployment=docker \
+  -Dapplication.update=SKIP \
   -Duser.home="${HOME:-/data}" \
   -Dnet.filebot.UserFiles.trash=XDG \
   ${FILEBOT_OPTS:-} \
