@@ -5,6 +5,7 @@ mkdir -m 700 -p "/tmp/xpra/0"
 mkdir -m 700 -p "/run/user/$PUID/xpra"
 # run xpra service
 xpra start \
+  --start="openbox" \
   --start-child="filebot" \
   --bind-tcp="$XPRA_BIND:$XPRA_PORT" \
   --tcp-auth="$XPRA_AUTH" \
@@ -15,6 +16,7 @@ xpra start \
   --speaker=disabled \
   --microphone=disabled \
   --system-tray=no \
+  --mdns=no \
   --min-quality='80' \
   --video-scaling='0' \
   --html=on \
