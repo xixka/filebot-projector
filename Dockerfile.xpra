@@ -67,12 +67,28 @@ ENV XPRA_PORT="5454"
 ENV XPRA_AUTH="none"
 
 ## container JVM options (passed to filebot via FILEBOT_OPTS in the start script)
+##   -XX:+DisableAttachMechanism       disable external jstack/jmap attach (more locked-down)
+##   -Dunixfs=false                    don't rely on Unix-specific filesystem features
+##   -DuseExtendedFileAttributes=true  enable extended file attributes (e.g. xattr)
+##   -DuseCreationDate=false           don't depend on file creation time (unreliable on Linux)
+##   -Djava.net.useSystemProxies=false  don't use the system proxy
+##   -Djna.nosys=false                 allow JNA to use system libraries
+##   -Djna.nounpack=true               don't unpack JNA's bundled native libs to a temp dir
+## NOTE: -client is intentionally omitted; it was removed in JDK 9+ and this image uses
+##       openjdk17-jre, where -client makes the JVM fail to start.
 ENV CONTAINER_OPTS=" \
     -DuseGVFS=false \
     -Dapplication.update=skip \
     -Dawt.useSystemAAFontSettings=on \
     -Dnet.filebot.UserFiles.fileChooser=Zenity \
     -Dnet.filebot.util.prefs.sync=true \
+    -XX:+DisableAttachMechanism \
+    -Dunixfs=false \
+    -DuseExtendedFileAttributes=true \
+    -DuseCreationDate=false \
+    -Djava.net.useSystemProxies=false \
+    -Djna.nosys=false \
+    -Djna.nounpack=true \
 "
 
 
