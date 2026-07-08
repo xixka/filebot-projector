@@ -60,7 +60,12 @@ export APP_DATA="$HOME"
 exec java \
   -classpath "/opt/projector-server/lib/*:/opt/filebot/jar/*" \
   -Dapplication.deployment=docker \
-  -Duser.home="$HOME" \
+  -Dnet.filebot.license="$APP_DATA/license.psm" \
+  -Dapplication.dir="$APP_DATA" \
+  -Dapplication.cache="$APP_DATA/cache" \
+  -Djava.io.tmpdir="$APP_DATA/tmp" \
+  -Duser.home="$APP_DATA" \
+  -Dnet.filebot.util.prefs.file="$APP_DATA/prefs.properties" \
   -DuseGVFS=false \
   -Dapplication.update=skip \
   -Dnet.filebot.util.prefs.sync=true \
@@ -76,6 +81,7 @@ exec java \
   -XX:+UseG1GC \
   -XX:MaxMetaspaceSize=128m \
   -XX:ReservedCodeCacheSize=64m \
+  -Dnet.filebot.theme=Nimbus \
   -Dnet.filebot.UserFiles.fileChooser=Swing \
   -Dnet.filebot.glass.effect=false \
   --add-opens=java.base/java.lang=ALL-UNNAMED \
