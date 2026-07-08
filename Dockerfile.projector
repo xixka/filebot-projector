@@ -57,6 +57,7 @@ COPY --from=projector /opt/projector-server /opt/projector-server
 COPY --chmod=0755 <<'EOF' /usr/local/bin/filebot
 #!/bin/sh
 export APP_DATA="$HOME"
+mkdir -p "$APP_DATA/tmp" "$APP_DATA/cache"
 exec java \
   -classpath "/opt/projector-server/lib/*:/opt/filebot/jar/*" \
   -Dapplication.deployment=docker \
