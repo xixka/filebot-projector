@@ -8,11 +8,22 @@ ARG FILEBOT_VERSION
 ARG FILEBOT_URL=https://get.filebot.net/filebot/FileBot_${FILEBOT_VERSION}/FileBot_${FILEBOT_VERSION}-portable.tar.xz
 RUN apk --no-cache add curl \
  && mkdir -p /tmp/filebot \
- && curl -# -L -f "${FILEBOT_URL}" | tar xJ -C /tmp/filebot \
+ && curl -# -L -f --retry 3 --retry-all-errors "${FILEBOT_URL}" | tar xJ -C /tmp/filebot \
  && mkdir -p /opt/filebot \
  && cp -R /tmp/filebot/jar /opt/filebot/
 
-## Stage 2: runtime with projector
+## Stage 2: download and extract projector (build-time only)
+FROM --platform=$BUILDPLATFORM alpine:3.20 AS projector
+ARG PROJECTOR_VERSION=1.8.1
+ARG PROJECTOR_URL=https://github.com/JetBrains/projector-server/releases/download/v${PROJECTOR_VERSION}/projector-server-v${PROJECTOR_VERSION}.zip
+RUN set -eux \
+ && apk add --no-cache curl unzip \
+ && curl -fsSL --retry 3 --retry-all-errors -o /tmp/projector-server.zip "${PROJECTOR_URL}" \
+ && unzip /tmp/projector-server.zip -d /opt \
+ && mv /opt/projector-server-* /opt/projector-server \
+ && rm -rf /opt/projector-server/lib/slf4j-* /opt/projector-server/bin /tmp/projector-server.zip
+
+## Stage 3: runtime with projector
 FROM alpine:3.20
 
 LABEL maintainer="Reinhard Pointner <rednoah@filebot.net>"
@@ -26,29 +37,22 @@ ENV PGID="1000"
 ENV PUSER="filebot"
 ENV PGROUP="filebot"
 
-# install dependencies + projector
+# install runtime dependencies
 RUN set -eux \
  && apk add --no-cache \
       bash \
       sudo \
       trash-cli \
-      unzip \
-      curl \
-      findutils \
-      coreutils \
       openjdk17-jre \
+      libmediainfo \
+      font-wqy-zenhei \
  && apk add --no-cache \
       --repository http://dl-cdn.alpinelinux.org/alpine/edge/community \
-      java-jna-native \
-      font-wqy-zenhei \
- # install projector
- && curl -fsSL -o /tmp/projector-server.zip https://github.com/JetBrains/projector-server/releases/download/v1.8.1/projector-server-v1.8.1.zip \
- && unzip /tmp/projector-server.zip -d /opt \
- && mv /opt/projector-server-* /opt/projector-server \
- && rm -rf /opt/projector-server/lib/slf4j-* /opt/projector-server/bin /tmp/projector-server.zip
+      java-jna-native
 
 # install filebot
 COPY --from=filebot /opt/filebot /opt/filebot
+COPY --from=projector /opt/projector-server /opt/projector-server
 
 # create filebot launcher with projector config baked in
 COPY --chmod=0755 <<'EOF' /usr/local/bin/filebot
@@ -58,6 +62,13 @@ exec java \
   -classpath "/opt/projector-server/lib/*:/opt/filebot/jar/*" \
   -Dapplication.deployment=docker \
   -Duser.home="$HOME" \
+  -DuseGVFS=false \
+  -Dapplication.update=skip \
+  -Dnet.filebot.util.prefs.sync=true \
+  -Dunixfs=false \
+  -DuseCreationDate=false \
+  -Djna.nosys=false \
+  -Djna.nounpack=true \
   -Dnet.filebot.UserFiles.trash=XDG \
   -Dorg.jetbrains.projector.server.enable=true \
   -Dorg.jetbrains.projector.server.classToLaunch=net.filebot.Main \
@@ -92,8 +103,7 @@ exec java \
 EOF
 
 # install custom launcher scripts
-COPY generic /
-RUN chmod +x /opt/bin/run-as-user /opt/bin/run /opt/share/activate.sh
+COPY --chmod=0755 generic /
 
 # inline projector launcher script
 COPY --chmod=0755 <<'EOF' /opt/filebot-projector/start
