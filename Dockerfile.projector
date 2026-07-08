@@ -82,7 +82,6 @@ exec java \
   -XX:+UseG1GC \
   -XX:MaxMetaspaceSize=128m \
   -XX:ReservedCodeCacheSize=64m \
-  -Dnet.filebot.theme=Nimbus \
   -Dnet.filebot.UserFiles.fileChooser=Swing \
   -Dnet.filebot.glass.effect=false \
   --add-opens=java.base/java.lang=ALL-UNNAMED \
