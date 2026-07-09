@@ -47,7 +47,9 @@ RUN set -eux \
       font-wqy-zenhei \
  && apk add --no-cache \
       --repository http://dl-cdn.alpinelinux.org/alpine/edge/community \
-      java-jna-native
+      java-jna-native \
+ && rm -f /usr/lib/jvm/java-17-openjdk/lib/server/classes.jsa \
+         /usr/lib/jvm/java-17-openjdk/lib/server/classes_nocoops.jsa
 
 # install filebot
 COPY --from=filebot /opt/filebot /opt/filebot
