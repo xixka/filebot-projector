@@ -78,10 +78,8 @@ exec java \
   -Dorg.jetbrains.projector.server.classToLaunch=net.filebot.Main \
   -XX:+EnableDynamicAgentLoading \
   -Djdk.attach.allowAttachSelf=true \
-  -Xmx399m \
   -XX:+UseG1GC \
-  -XX:MaxMetaspaceSize=128m \
-  -XX:ReservedCodeCacheSize=64m \
+  -XX:MaxMetaspaceSize=177m \
   -Dnet.filebot.UserFiles.fileChooser=Swing \
   -Dnet.filebot.glass.effect=false \
   --add-opens=java.base/java.lang=ALL-UNNAMED \
